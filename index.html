@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8D-World Cylinder Hub</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 800px; /* This creates the 3D depth */
+        }
+
+        .scene {
+            width: 300px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 20s infinite linear;
+        }
+
+        /* The Cylinder */
+        .cylinder {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        /* Individual Portal Panels */
+        .portal {
+            position: absolute;
+            width: 160px;
+            height: 250px;
+            left: 70px;
+            top: 75px;
+            border: 2px solid #0ff;
+            background: rgba(0, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            backface-visibility: visible;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #0ff;
+            transition: transform 0.3s, background 0.3s;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .portal:hover {
+            background: rgba(0, 255, 255, 0.4);
+            cursor: pointer;
+        }
+
+        /* Position 8 panels in a circle facing inward */
+        /* Formula: rotateY(i * 45deg) translateZ(-400px) */
+        .p1 { transform: rotateY(0deg) translateZ(-400px); }
+        .p2 { transform: rotateY(45deg) translateZ(-400px); }
+        .p3 { transform: rotateY(90deg) translateZ(-400px); }
+        .p4 { transform: rotateY(135deg) translateZ(-400px); }
+        .p5 { transform: rotateY(180deg) translateZ(-400px); }
+        .p6 { transform: rotateY(225deg) translateZ(-400px); }
+        .p7 { transform: rotateY(270deg) translateZ(-400px); }
+        .p8 { transform: rotateY(315deg) translateZ(-400px); }
+
+        @keyframes rotate {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scene">
+        <div class="cylinder">
+            <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal p1">Diney the Dinosaur</a>
+        </div>
+    </div>
+
+    <div class="instructions">Loading Apps... Click to Enter</div>
+
+</body>
+</html>
