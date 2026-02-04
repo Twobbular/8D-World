@@ -42,11 +42,11 @@
             align-items: center;
             justify-content: center;
             transform-style: preserve-3d;
-            pointer-events: none; /* Let clicks pass through the container */
+            pointer-events: none;
         }
 
         .scene {
-            width: 0; /* Changed to 0 so the container doesn't block clicks */
+            width: 0;
             height: 0;
             position: relative;
             transform-style: preserve-3d;
@@ -68,8 +68,8 @@
             position: absolute;
             width: 180px;
             height: 280px;
-            left: -90px; /* Centering relative to 0 width */
-            top: -140px; /* Centering relative to 0 height */
+            left: -90px;
+            top: -140px;
             border: 2px solid var(--primary);
             background: rgba(188, 0, 255, 0.1);
             display: flex;
@@ -80,13 +80,20 @@
             backface-visibility: hidden; 
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(188, 0, 255, 0.4);
-            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s, transform 0.2s;
+            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s, transform 0.5s, opacity 0.5s;
             text-decoration: none;
             color: #fff;
             font-weight: bold;
             padding: 15px;
             box-sizing: border-box;
-            pointer-events: auto; /* Re-enable clicks specifically for the buttons */
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+        .portal.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: rotateY(0deg) translateZ(-100px) scale(0.5) !important;
         }
 
         .portal:hover {
@@ -102,17 +109,47 @@
             text-shadow: 0 0 10px #000;
         }
 
-        .instructions {
+        /* UI Elements */
+        .ui-container {
             position: fixed;
             bottom: 30px;
             width: 100%;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            pointer-events: none;
+        }
+
+        .wheel-selector {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .wheel-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.2s;
+        }
+
+        .wheel-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .instructions {
             color: var(--primary);
             text-transform: uppercase;
             letter-spacing: 3px;
             font-size: 0.8rem;
             text-shadow: 0 0 10px rgba(188, 0, 255, 0.8);
-            pointer-events: none;
         }
     </style>
 </head>
@@ -123,80 +160,116 @@
     <div class="viewport">
         <div class="scene" id="scene">
             <div class="cylinder" id="cylinder">
-                <!-- Portals -->
-                <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal" style="transform: rotateY(0deg) translateZ(-500px);">
-                    <span>Diney the Dinosaur</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/Minecraft_2.html" class="portal" style="transform: rotateY(45deg) translateZ(-500px);">
-                    <span>Minecraft 2</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/About8D.html" class="portal" style="transform: rotateY(90deg) translateZ(-500px);">
-                    <span>About 8D</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/TheCityPart1" class="portal" style="transform: rotateY(135deg) translateZ(-500px);">
-                    <span>The city part 1</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/TheMedowPart2" class="portal" style="transform: rotateY(180deg) translateZ(-500px);">
-                    <span>The Medow part 2</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/TheDesertPart3" class="portal" style="transform: rotateY(225deg) translateZ(-500px);">
-                    <span>The Desert part 3</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/YamsBasePart4" class="portal" style="transform: rotateY(270deg) translateZ(-500px);">
-                    <span>Yam's base part 4</span>
-                </a>
-                <a href="https://twobbular.github.io/8D-World/Tutorial120" class="portal" style="transform: rotateY(315deg) translateZ(-500px);">
-                    <span>8D Tutorial 1/10</span>
-                </a>
+                <!-- Portals will be injected by JS -->
             </div>
         </div>
     </div>
 
-    <div class="instructions" id="status">Drag to rotate • Click to enter</div>
+    <div class="ui-container">
+        <div class="wheel-selector">
+            <button class="wheel-btn active" id="btn-1" onclick="switchWheel(1)">WHEEL 1</button>
+            <button class="wheel-btn" id="btn-2" onclick="switchWheel(2)">WHEEL 2</button>
+        </div>
+        <div class="instructions" id="status">Drag to rotate • Press 1 or 2 to switch wheels</div>
+    </div>
 
     <script>
         const cylinder = document.getElementById('cylinder');
         const status = document.getElementById('status');
         
+        const wheels = {
+            1: [
+                { name: "Diney the Dinosaur", url: "diney_the_dinosaur.html" },
+                { name: "Minecraft 2", url: "Minecraft_2.html" },
+                { name: "About 8D", url: "About8D.html" },
+                { name: "The City Part 1", url: "TheCityPart1" },
+                { name: "The Meadow Part 2", url: "TheMedowPart2" },
+                { name: "The Desert Part 3", url: "TheDesertPart3" },
+                { name: "Yam's Base Part 4", url: "YamsBasePart4" },
+                { name: "8D Tutorial 1/10", url: "Tutorial120" }
+            ],
+            2: [
+                { name: "8D Tutorial 2/20", url: "Tutorial220" },
+                { name: "Ball run", url: "Ballrun" },
+                { name: "Trucker", url: "Trucker" },
+                { name: "When you wash your hands too much", url: "wywyhtm" },
+                { name: "8D Tutorial 3/20", url: "Tutorial330 },
+                { name: "The last bag of potato chips", url: "tlbopc" },
+                { name: "Space explorer", url: "SpaceExplorer" },
+                { name: "New Super Mario World", url: "NSMW" }
+            ]
+        };
+
+        let currentWheel = 1;
         let isDragging = false;
         let startX = 0;
         let currentRotation = 0;
         let targetRotation = 0;
         let velocity = 0.1;
 
+        function createPortals() {
+            cylinder.innerHTML = '';
+            const gameList = wheels[currentWheel];
+            
+            gameList.forEach((game, i) => {
+                const angle = i * 45;
+                const a = document.createElement('a');
+                a.href = game.url.startsWith('http') ? game.url : `https://twobbular.github.io/8D-World/${game.url}`;
+                a.className = 'portal';
+                a.style.transform = `rotateY(${angle}deg) translateZ(-500px)`;
+                a.innerHTML = `<span>${game.name}</span>`;
+                cylinder.appendChild(a);
+            });
+        }
+
+        function switchWheel(num) {
+            if (num === currentWheel) return;
+            
+            currentWheel = num;
+            
+            // Update UI
+            document.querySelectorAll('.wheel-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${num}`).classList.add('active');
+            
+            // Animation: shrink/fade existing portals
+            const portals = document.querySelectorAll('.portal');
+            portals.forEach(p => p.classList.add('hidden'));
+            
+            // Wait for transition, then rebuild
+            setTimeout(() => {
+                createPortals();
+            }, 500);
+        }
+
+        // Input Handling
         function getX(e) {
             if (e.touches && e.touches.length > 0) return e.touches[0].pageX;
             if (e.changedTouches && e.changedTouches.length > 0) return e.changedTouches[0].pageX;
             return e.pageX || 0;
         }
 
-        const startAction = (e) => {
-            // Only initiate drag if we're clicking the background or dragging
-            // This allows the portal links to still trigger clicks
-            isDragging = true;
-            startX = getX(e);
-            velocity = 0;
-        };
-
-        const moveAction = (e) => {
+        window.addEventListener('mousedown', (e) => { isDragging = true; startX = getX(e); velocity = 0; });
+        window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             const x = getX(e);
-            const delta = (x - startX) * 0.3;
-            targetRotation += delta;
+            targetRotation += (x - startX) * 0.3;
             startX = x;
-        };
+        });
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('touchstart', (e) => { isDragging = true; startX = getX(e); velocity = 0; }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const x = getX(e);
+            targetRotation += (x - startX) * 0.3;
+            startX = x;
+        }, { passive: true });
+        window.addEventListener('touchend', () => isDragging = false);
 
-        const endAction = () => {
-            isDragging = false;
-        };
-
-        // Attach listeners to window so dragging works anywhere
-        window.addEventListener('mousedown', startAction);
-        window.addEventListener('mousemove', moveAction);
-        window.addEventListener('mouseup', endAction);
-        window.addEventListener('touchstart', startAction, { passive: true });
-        window.addEventListener('touchmove', moveAction, { passive: true });
-        window.addEventListener('touchend', endAction, { passive: true });
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '1') switchWheel(1);
+            if (e.key === '2') switchWheel(2);
+        });
 
         function animate() {
             if (!isDragging) {
@@ -204,13 +277,12 @@
                 velocity *= 0.95;
                 if (Math.abs(velocity) < 0.05) velocity = 0.05;
             }
-
             currentRotation += (targetRotation - currentRotation) * 0.1;
             cylinder.style.transform = `rotateY(${currentRotation}deg)`;
-            
             requestAnimationFrame(animate);
         }
 
+        // Starfield
         const canvas = document.getElementById('stars');
         const ctx = canvas.getContext('2d');
         let stars = [];
@@ -220,12 +292,7 @@
             canvas.height = window.innerHeight;
             stars = [];
             for (let i = 0; i < 200; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2,
-                    speed: Math.random() * 0.5
-                });
+                stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 });
             }
         }
 
@@ -246,6 +313,7 @@
         window.addEventListener('resize', resize);
         resize();
         drawStars();
+        createPortals();
         animate();
     </script>
 </body>
