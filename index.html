@@ -35,25 +35,32 @@
             z-index: -1;
         }
 
-        .scene {
-            width: 300px;
-            height: 400px;
-            position: relative;
+        .viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transform-style: preserve-3d;
-            cursor: grab;
+            pointer-events: none; /* Let clicks pass through the container */
         }
 
-        .scene:active {
-            cursor: grabbing;
+        .scene {
+            width: 0; /* Changed to 0 so the container doesn't block clicks */
+            height: 0;
+            position: relative;
+            transform-style: preserve-3d;
+            pointer-events: none;
         }
 
         /* The Cylinder */
         .cylinder {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 0;
+            height: 0;
             transform-style: preserve-3d;
             will-change: transform;
+            pointer-events: none;
         }
 
         /* Individual Portal Panels */
@@ -61,27 +68,25 @@
             position: absolute;
             width: 180px;
             height: 280px;
-            left: 60px;
-            top: 60px;
+            left: -90px; /* Centering relative to 0 width */
+            top: -140px; /* Centering relative to 0 height */
             border: 2px solid var(--primary);
-            background: rgba(188, 0, 255, 0.1); /* Slightly more opaque to feel solid */
+            background: rgba(188, 0, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            
-            /* CRITICAL CHANGE: This hides the "back" of the elements */
             backface-visibility: hidden; 
-            
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(188, 0, 255, 0.4);
-            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
+            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s, transform 0.2s;
             text-decoration: none;
             color: #fff;
             font-weight: bold;
             padding: 15px;
             box-sizing: border-box;
+            pointer-events: auto; /* Re-enable clicks specifically for the buttons */
         }
 
         .portal:hover {
@@ -115,33 +120,35 @@
 
     <canvas id="stars"></canvas>
 
-    <div class="scene" id="scene">
-        <div class="cylinder" id="cylinder">
-            <!-- Portals - Note we are inside, so panels face the center -->
-            <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal" style="transform: rotateY(0deg) translateZ(-450px);">
-                <span>Diney the Dinosaur</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/Minecraft_2.html" class="portal" style="transform: rotateY(45deg) translateZ(-450px);">
-                <span>Minecraft 2</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/About8D.html" class="portal" style="transform: rotateY(90deg) translateZ(-450px);">
-                <span>About 8D</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/TheCityPart1" class="portal" style="transform: rotateY(135deg) translateZ(-450px);">
-                <span>The city part 1</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/TheMedowPart2" class="portal" style="transform: rotateY(180deg) translateZ(-450px);">
-                <span>The Medow part 2</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/TheDesertPart3" class="portal" style="transform: rotateY(225deg) translateZ(-450px);">
-                <span>The Desert part 3</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/YamsBasePart4" class="portal" style="transform: rotateY(270deg) translateZ(-450px);">
-                <span>Yam's base part 4</span>
-            </a>
-            <a href="https://twobbular.github.io/8D-World/Home" class="portal" style="transform: rotateY(315deg) translateZ(-450px);">
-                <span>8D Tutorial 1/10</span>
-            </a>
+    <div class="viewport">
+        <div class="scene" id="scene">
+            <div class="cylinder" id="cylinder">
+                <!-- Portals -->
+                <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal" style="transform: rotateY(0deg) translateZ(-500px);">
+                    <span>Diney the Dinosaur</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/Minecraft_2.html" class="portal" style="transform: rotateY(45deg) translateZ(-500px);">
+                    <span>Minecraft 2</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/About8D.html" class="portal" style="transform: rotateY(90deg) translateZ(-500px);">
+                    <span>About 8D</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/TheCityPart1" class="portal" style="transform: rotateY(135deg) translateZ(-500px);">
+                    <span>The city part 1</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/TheMedowPart2" class="portal" style="transform: rotateY(180deg) translateZ(-500px);">
+                    <span>The Medow part 2</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/TheDesertPart3" class="portal" style="transform: rotateY(225deg) translateZ(-500px);">
+                    <span>The Desert part 3</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/YamsBasePart4" class="portal" style="transform: rotateY(270deg) translateZ(-500px);">
+                    <span>Yam's base part 4</span>
+                </a>
+                <a href="https://twobbular.github.io/8D-World/Home" class="portal" style="transform: rotateY(315deg) translateZ(-500px);">
+                    <span>8D Tutorial 1/10</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -149,7 +156,6 @@
 
     <script>
         const cylinder = document.getElementById('cylinder');
-        const scene = document.getElementById('scene');
         const status = document.getElementById('status');
         
         let isDragging = false;
@@ -165,6 +171,8 @@
         }
 
         const startAction = (e) => {
+            // Only initiate drag if we're clicking the background or dragging
+            // This allows the portal links to still trigger clicks
             isDragging = true;
             startX = getX(e);
             velocity = 0;
@@ -182,6 +190,7 @@
             isDragging = false;
         };
 
+        // Attach listeners to window so dragging works anywhere
         window.addEventListener('mousedown', startAction);
         window.addEventListener('mousemove', moveAction);
         window.addEventListener('mouseup', endAction);
