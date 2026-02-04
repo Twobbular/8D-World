@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8D Hub</title>
     <style>
+        :root {
+            --primary: #bc00ff;
+            --bg: #050008;
+        }
+
         body {
             margin: 0;
-            background: #000;
+            background: var(--bg);
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
@@ -15,7 +20,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 800px; /* This creates the 3D depth */
+            perspective: 1000px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* Starfield Effect */
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
         .scene {
@@ -23,7 +40,11 @@
             height: 400px;
             position: relative;
             transform-style: preserve-3d;
-            animation: rotate 20s infinite linear;
+            cursor: grab;
+        }
+
+        .scene:active {
+            cursor: grabbing;
         }
 
         /* The Cylinder */
@@ -32,73 +53,191 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
+            will-change: transform;
         }
 
         /* Individual Portal Panels */
         .portal {
             position: absolute;
-            width: 160px;
-            height: 250px;
-            left: 70px;
-            top: 75px;
-            border: 2px solid #0ff;
-            background: rgba(0, 255, 255, 0.1);
+            width: 180px;
+            height: 280px;
+            left: 60px;
+            top: 60px;
+            border: 2px solid var(--primary);
+            background: rgba(188, 0, 255, 0.1); /* Slightly more opaque to feel solid */
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            backface-visibility: visible;
-            border-radius: 10px;
-            box-shadow: 0 0 20px #0ff;
-            transition: transform 0.3s, background 0.3s;
+            
+            /* CRITICAL CHANGE: This hides the "back" of the elements */
+            backface-visibility: hidden; 
+            
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(188, 0, 255, 0.4);
+            transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
             text-decoration: none;
             color: #fff;
             font-weight: bold;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .portal:hover {
-            background: rgba(0, 255, 255, 0.4);
-            cursor: pointer;
+            background: rgba(188, 0, 255, 0.4);
+            border-color: #e066ff;
+            box-shadow: 0 0 40px var(--primary), inset 0 0 20px var(--primary);
         }
 
-        /* Position 8 panels in a circle facing inward */
-        /* Formula: rotateY(i * 45deg) translateZ(-400px) */
-        .p1 { transform: rotateY(0deg) translateZ(-400px); }
-        .p2 { transform: rotateY(45deg) translateZ(-400px); }
-        .p3 { transform: rotateY(90deg) translateZ(-400px); }
-        .p4 { transform: rotateY(135deg) translateZ(-400px); }
-        .p5 { transform: rotateY(180deg) translateZ(-400px); }
-        .p6 { transform: rotateY(225deg) translateZ(-400px); }
-        .p7 { transform: rotateY(270deg) translateZ(-400px); }
-        .p8 { transform: rotateY(315deg) translateZ(-400px); }
-
-        @keyframes rotate {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
+        .portal span {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px #000;
         }
 
         .instructions {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             width: 100%;
             text-align: center;
-            color: #0ff;
+            color: var(--primary);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+            text-shadow: 0 0 10px rgba(188, 0, 255, 0.8);
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="scene">
-        <div class="cylinder">
-            <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal p1">Diney the Dinosaur</a>
-            <a href="https://twobbular.github.io/8D-World/Minecraft_2.html" class="portal p2">Minecraft 2</a>
-            <a href="https://twobbular.github.io/8D-World/About8D.html" class="portal p3">About 8D</a>
+    <canvas id="stars"></canvas>
+
+    <div class="scene" id="scene">
+        <div class="cylinder" id="cylinder">
+            <!-- Portals - Note we are inside, so panels face the center -->
+            <a href="https://twobbular.github.io/8D-World/diney_the_dinosaur.html" class="portal" style="transform: rotateY(0deg) translateZ(-450px);">
+                <span>Diney the Dinosaur</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/Minecraft_2.html" class="portal" style="transform: rotateY(45deg) translateZ(-450px);">
+                <span>Minecraft 2</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/About8D.html" class="portal" style="transform: rotateY(90deg) translateZ(-450px);">
+                <span>About 8D</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/Level1" class="portal" style="transform: rotateY(135deg) translateZ(-450px);">
+                <span>The city part 1</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/TheVoid" class="portal" style="transform: rotateY(180deg) translateZ(-450px);">
+                <span>The Medow part 2</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/Gallery" class="portal" style="transform: rotateY(225deg) translateZ(-450px);">
+                <span>The Desert part 3</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/Nexus" class="portal" style="transform: rotateY(270deg) translateZ(-450px);">
+                <span>Yam's base part 4</span>
+            </a>
+            <a href="https://twobbular.github.io/8D-World/Home" class="portal" style="transform: rotateY(315deg) translateZ(-450px);">
+                <span>8D Tutorial 1/10</span>
+            </a>
         </div>
     </div>
 
-    <div class="instructions">Loading Apps... Click to Enter</div>
+    <div class="instructions" id="status">Drag to rotate • Click to enter</div>
 
+    <script>
+        const cylinder = document.getElementById('cylinder');
+        const scene = document.getElementById('scene');
+        const status = document.getElementById('status');
+        
+        let isDragging = false;
+        let startX = 0;
+        let currentRotation = 0;
+        let targetRotation = 0;
+        let velocity = 0.1;
+
+        function getX(e) {
+            if (e.touches && e.touches.length > 0) return e.touches[0].pageX;
+            if (e.changedTouches && e.changedTouches.length > 0) return e.changedTouches[0].pageX;
+            return e.pageX || 0;
+        }
+
+        const startAction = (e) => {
+            isDragging = true;
+            startX = getX(e);
+            velocity = 0;
+        };
+
+        const moveAction = (e) => {
+            if (!isDragging) return;
+            const x = getX(e);
+            const delta = (x - startX) * 0.3;
+            targetRotation += delta;
+            startX = x;
+        };
+
+        const endAction = () => {
+            isDragging = false;
+        };
+
+        window.addEventListener('mousedown', startAction);
+        window.addEventListener('mousemove', moveAction);
+        window.addEventListener('mouseup', endAction);
+        window.addEventListener('touchstart', startAction, { passive: true });
+        window.addEventListener('touchmove', moveAction, { passive: true });
+        window.addEventListener('touchend', endAction, { passive: true });
+
+        function animate() {
+            if (!isDragging) {
+                targetRotation += velocity;
+                velocity *= 0.95;
+                if (Math.abs(velocity) < 0.05) velocity = 0.05;
+            }
+
+            currentRotation += (targetRotation - currentRotation) * 0.1;
+            cylinder.style.transform = `rotateY(${currentRotation}deg)`;
+            
+            requestAnimationFrame(animate);
+        }
+
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2,
+                    speed: Math.random() * 0.5
+                });
+            }
+        }
+
+        function drawStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#bc00ff';
+            stars.forEach(s => {
+                ctx.globalAlpha = Math.random() * 0.5 + 0.5;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                s.y += s.speed;
+                if (s.y > canvas.height) s.y = 0;
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        drawStars();
+        animate();
+    </script>
 </body>
 </html>
